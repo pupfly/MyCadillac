@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+     -->
+     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+         android:id="@+id/RelativeLayout1"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical"
+         android:visibility="visible" >
+
+	<RelativeLayout
+	    android:id="@+id/RelativeLayoutMain"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentTop="true"
+	    android:orientation="vertical"
+	    android:visibility="visible" >
+
+	    <ListView
+	        android:id="@+id/in"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_above="@+id/edit_msg"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/text_prompt"
+	        android:stackFromBottom="true"
+	        android:transcriptMode="alwaysScroll"
+	        android:visibility="visible" >
+	    </ListView>
+
+	    <TextView
+	        android:id="@+id/text_temperature"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignParentTop="true"
+	        android:text="温度(℃):--"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    <TextView
+	        android:id="@+id/text_f_distance"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/text_temperature"
+	        android:layout_marginTop="26dp"
+	        android:text="前距(cm):--"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    <TextView
+	        android:id="@+id/text_b_distance"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/text_f_distance"
+	        android:layout_alignBottom="@+id/text_f_distance"
+	        android:layout_alignLeft="@+id/text_humidity"
+	        android:text="后距(cm):--"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    <Button
+	        android:id="@+id/button_clear"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/button_send"
+	        android:layout_alignBottom="@+id/button_send"
+	        android:layout_alignParentRight="true"
+	        android:text="清空" />
+
+	    <TextView
+	        android:id="@+id/text_humidity"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_above="@+id/text_f_distance"
+	        android:layout_alignLeft="@+id/button_send"
+	        android:text="湿度(%):--"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    <TextView
+	        android:id="@+id/text_prompt"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/text_f_distance"
+	        android:text="运行日志："
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    <Button
+	        android:id="@+id/button_send"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBottom="@+id/edit_msg"
+	        android:layout_toRightOf="@+id/edit_msg"
+	        android:text="发送"
+	        android:visibility="invisible" />
+
+	    <Button
+	        android:id="@+id/button_show_log"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:text="关闭日志" />
+
+	    <EditText
+	        android:id="@+id/edit_msg"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_above="@+id/button_show_log"
+	        android:layout_alignParentLeft="true"
+	        android:layout_marginBottom="72dp"
+	        android:ems="10"
+	        android:inputType="textCapCharacters"
+	        android:visibility="invisible" >
+
+	        <requestFocus />
+	    </EditText>
+
+	    <Button
+	        android:id="@+id/button_start_control"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignParentRight="true"
+	        android:text="开始遥控" />
+
+	    <Button
+	        android:id="@+id/button_enable"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_centerHorizontal="true"
+	        android:text="启动调试" />
+
+	    <Button
+	        android:id="@+id/button_distance"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/button_DHT11"
+	        android:layout_alignBottom="@+id/button_DHT11"
+	        android:layout_alignParentRight="true"
+	        android:text="更新前后距" />
+
+	    <Button
+	        android:id="@+id/button_DHT11"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/button_send"
+	        android:text="更新温湿度" />
+
+	    <Button
+	        android:id="@+id/button_auto"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/button_DHT11"
+	        android:layout_alignBottom="@+id/button_DHT11"
+	        android:layout_centerHorizontal="true"
+	        android:text="手动更新" />
+
+	</RelativeLayout>
+	<RelativeLayout
+        android:id="@+id/layout_control"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" >
+
+    <Button
+        android:id="@+id/button_level4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button_level5"
+        android:layout_marginTop="19dp"
+        android:text="四档" />
+
+    <Button
+        android:id="@+id/button_level3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button_level4"
+        android:layout_marginTop="19dp"
+        android:text="三档" />
+
+    <Button
+        android:id="@+id/button_level2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button_level3"
+        android:layout_marginTop="26dp"
+        android:text="二档" />
+
+    <Button
+        android:id="@+id/button_level1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button_level2"
+        android:layout_marginTop="21dp"
+        android:text="一档" />
+	 <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" >
+	    <RadioButton
+        android:id="@+id/radio_fdj"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/radio_bdj"
+        android:layout_below="@+id/radio_bdj"
+        android:text="前舵机" />
+
+	    <RadioButton
+	        android:id="@+id/radio_bdj"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_above="@+id/button_level3"
+	        android:layout_alignLeft="@+id/radio_car"
+	        android:text="后舵机" />
+	
+	    <RadioButton
+	        android:id="@+id/radio_car"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/button_left"
+	        android:layout_below="@+id/radio_fdj"
+	        android:checked="true"
+	        android:text="电机组" />
+    </RadioGroup>
+    
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="31dp"
+        android:text="档位："
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/button_level5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView1"
+        android:layout_marginTop="14dp"
+        android:text="五档" />
+
+    <Button
+        android:id="@+id/button_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_stop"
+        android:layout_alignLeft="@+id/button_stop"
+        android:text="    ↑    " />
+
+    <Button
+        android:id="@+id/button_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button_stop"
+        android:layout_alignBottom="@+id/button_stop"
+        android:layout_centerHorizontal="true"
+        android:text="   ←   " />
+
+    <Button
+        android:id="@+id/button_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button_right"
+        android:layout_alignBottom="@+id/button_right"
+        android:layout_toRightOf="@+id/button_left"
+        android:text="    S     " />
+
+    <Button
+        android:id="@+id/button_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/button_level1"
+        android:layout_marginTop="28dp"
+        android:layout_toRightOf="@+id/button_up"
+        android:text="   →   " />
+
+    <Button
+        android:id="@+id/button_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/button_stop"
+        android:layout_below="@+id/button_left"
+        android:text="    ↓    " />
+
+    <Button
+        android:id="@+id/button_return"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView1"
+        android:layout_alignParentRight="true"
+        android:text="返回主页" />
+
+    <Button
+        android:id="@+id/button_enable_sensor"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/button_level5"
+        android:text="开传感器" />
+
+    <Button
+        android:id="@+id/button_fine_turning"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/button_level5"
+        android:text="舵机微调" />
+    
+    <Button
+        android:id="@+id/button_auto_mode"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/button_fine_turning"
+        android:layout_marginTop="14dp"
+        android:text="手动控制" />
+	</RelativeLayout>
+</RelativeLayout>
