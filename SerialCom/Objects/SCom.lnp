@@ -1,0 +1,11 @@
+".\Objects\STARTUP.obj",
+".\Objects\code.obj",
+".\Objects\DHT11_FUNCTIONS.obj",
+".\Objects\LCD1602.obj",
+".\Objects\COMMAN_FUNC.obj",
+".\Objects\ULTRASOUND.obj",
+".\Objects\SERIALCOM.obj",
+".\Objects\SERVOS_MOTORS.obj",
+".\Objects\function_for_main.obj" 
+TO ".\Objects\SCom" 
+PRINT(".\Listings\SCom.m51") RAMSIZE(256) 

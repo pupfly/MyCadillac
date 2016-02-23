@@ -1,0 +1,94 @@
+C51 COMPILER V9.01   COMMAN_FUNC                                                           02/23/2016 22:16:19 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE COMMAN_FUNC
+OBJECT MODULE PLACED IN .\Objects\COMMAN_FUNC.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE COMMAN_FUNC.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -COMMAN_FUNC.lst) OBJECT(.\Objects\COMMAN_FUNC.obj)
+
+line level    source
+
+   1          #include "COMMON_FUNC.h"
+   2          #include <reg52.h>
+   3          
+   4          unsigned char code num2char[] = "0123456789";
+   5          static bit received = 0;
+   6          static bit time_up = 0;
+   7          static count = 0;//计数变量
+   8          static bit connect_flag = 0;
+   9          static bit auto_renew = 0;
+  10          
+  11          extern void delay_ms(unsigned int time)
+  12          {
+  13   1              int i, j;
+  14   1              for(i = 0;i < time;i++)
+  15   1                      for(j = 0;j < 124;j++);
+  16   1      }
+  17          
+  18          extern void delay_10us()
+  19          {
+  20   1              unsigned char i;
+  21   1              i--;
+  22   1              i--;
+  23   1              i--;
+  24   1              i--;
+  25   1              i--;
+  26   1              i--;
+  27   1      }
+  28          
+  29          //为串口通信设置的处理交互式通信标志函数
+  30          extern bit get_response_flag()
+  31          {
+  32   1              return received;
+  33   1      }
+  34          extern void set_response_flag(bit value)
+  35          {
+  36   1              received = value;
+  37   1      }
+  38          
+  39          //定时相关函数，3s
+  40          extern void set_timeup_30s(bit value)
+  41          {
+  42   1              time_up = value;
+  43   1      }
+  44          extern bit is_timeup_30s()
+  45          {
+  46   1              return time_up;
+  47   1      }
+  48          
+  49          //连接状态
+  50          extern void set_connected(bit value)
+  51          {
+  52   1              connect_flag = value;
+  53   1      }
+  54          extern bit is_connected()
+C51 COMPILER V9.01   COMMAN_FUNC                                                           02/23/2016 22:16:19 PAGE 2   
+
+  55          {
+  56   1              return connect_flag;
+  57   1      }
+  58          
+  59          //自动更新状态
+  60          extern void set_auto_renew(bit value)
+  61          {
+  62   1              auto_renew = value;
+  63   1      }
+  64          
+  65          extern bit get_auto_renew()
+  66          {
+  67   1              return auto_renew;
+  68   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     77    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      4       4
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

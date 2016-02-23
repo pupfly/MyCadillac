@@ -1,0 +1,447 @@
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SERVOS_MOTORS
+OBJECT MODULE PLACED IN .\Objects\SERVOS_MOTORS.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE SERVOS_MOTORS.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\SERVOS_MOTORS.lst) OBJECT(.\Objects\SERVOS_MOTORS.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "SERVOS_MOTORS.h"
+   3          #include "COMMON_FUNC.h"
+   4          #include "LCD1602.h"
+   5          #include "ULTRASOUND.h"
+   6          sbit servo_F = P2^3;
+   7          sbit servo_B = P2^2;
+   8          static uchar angle_F, angle_B;
+   9          static uchar speed, speed_limit;
+  10          static uchar count = 0;
+  11          static uint timer_30s = 0;
+  12          static uchar direction = 0x00;
+  13          static bit auto_mode = 0;
+  14          static bit orientation = 0;//0代表当前在前行，1代表后退
+  15          static uchar danger = 0;//距离过近计数变量
+  16          static uchar steer_state = 0;//舵机朝向，0-前，1-左，2-右
+  17          //初始化定时器0
+  18          static void init_T0_for_servo()
+  19          {
+  20   1              TMOD |= 0x01;//定时器0为工作方式一
+  21   1              IE |= 0x82;
+  22   1              TH0 = 0xFF;
+  23   1              TL0 = 0xA3;
+  24   1              TR0 = 1;
+  25   1      }
+  26          //初始化舵机
+  27          extern void init_servos_motors()
+  28          {
+  29   1              init_T0_for_servo();
+  30   1              set_angleF(11);
+  31   1              set_angleB(11);
+  32   1              motor_ctrl('s');
+  33   1              set_speed(120);//默认三档
+  34   1      }
+  35          //设置角度的函数
+  36          //角度参考值（angle-角度）：5-0、10-45、12-90、20-135、25-180
+  37          extern void set_angleF(uchar angle)
+  38          {
+  39   1              angle_F = angle;
+  40   1      }
+  41          extern void set_angleB(uchar angle)
+  42          {
+  43   1              angle_B = angle;
+  44   1      }
+  45          
+  46          //控制电机转向
+  47          extern void motor_ctrl(const uchar d)
+  48          {
+  49   1              switch(d)
+  50   1              {
+  51   2                      case 'D':
+  52   2                              direction = 0xAA;
+  53   2                              set_orientation(1);
+  54   2                              break;
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 2   
+
+  55   2                      case 'U':
+  56   2                              direction = 0x55;
+  57   2                              set_orientation(0);
+  58   2                              break;
+  59   2                      case 'L':
+  60   2                              direction = 0x66;
+  61   2                              speed = speed_limit;
+  62   2                              break;
+  63   2                      case 'R':
+  64   2                              direction = 0x99;
+  65   2                              speed = speed_limit;
+  66   2                              break;
+  67   2                      case 's':
+  68   2                              direction = 0x00;
+  69   2                              speed = 0;
+  70   2                              break;
+  71   2              }
+  72   1      }
+  73          
+  74          extern unsigned char get_direction()
+  75          {
+  76   1              return direction;
+  77   1      }
+  78          
+  79          //设置电机转速
+  80          extern void set_speed(unsigned char s)//设置速度上限
+  81          {
+  82   1              speed_limit = s;
+  83   1              if(is_auto())
+  84   1              {
+  85   2                      set_speed_direct();
+  86   2              }
+  87   1      }
+  88          extern unsigned char get_speed()//获取速度上限
+  89          {
+  90   1              return speed_limit;
+  91   1      }
+  92          extern void set_speed_direct()//直接设置速度为所设档位
+  93          {
+  94   1              speed = speed_limit;
+  95   1      }
+  96          //模拟油门
+  97          extern void accelerator()
+  98          {
+  99   1              if(direction == 0x00)
+ 100   1                      return;
+ 101   1              if(speed <= speed_limit)
+ 102   1                      speed++;
+ 103   1              else
+ 104   1                      speed--;
+ 105   1              delay_ms(2);
+ 106   1      }
+ 107          
+ 108          //舵机角度加减
+ 109          extern void angleFDec()
+ 110          {
+ 111   1              if(angle_F == 0)
+ 112   1                      return;
+ 113   1              angle_F--;
+ 114   1      }
+ 115          extern void angleFInc()
+ 116          {
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 3   
+
+ 117   1              if(angle_F == 25)
+ 118   1                      return;
+ 119   1              angle_F++;
+ 120   1      }
+ 121          extern void angleBDec()
+ 122          {
+ 123   1              if(angle_B == 0)
+ 124   1                      return;
+ 125   1              angle_B--;
+ 126   1      }
+ 127          extern void angleBInc()
+ 128          {
+ 129   1              if(angle_B == 25)
+ 130   1                      return;
+ 131   1              angle_B++;
+ 132   1      }
+ 133          
+ 134          //定时器0中断函数，0.1ms
+ 135          void timer0_intrrupt() interrupt 1
+ 136          {
+ 137   1              TH0 = 0xFF;
+ 138   1              TL0 = 0xA3;
+ 139   1              count++;
+ 140   1              if(count < angle_F)
+ 141   1              {
+ 142   2                      servo_F = 1;
+ 143   2              }
+ 144   1              else
+ 145   1              {
+ 146   2                      servo_F = 0;
+ 147   2              }
+ 148   1              if(count < angle_B)
+ 149   1              {
+ 150   2                      servo_B = 1;
+ 151   2              }
+ 152   1              else
+ 153   1              {
+ 154   2                      servo_B = 0;
+ 155   2              }
+ 156   1              if(count < speed)
+ 157   1              {
+ 158   2                      P1 = direction;
+ 159   2              }
+ 160   1              else
+ 161   1              {
+ 162   2                      P1 = 0x00;
+ 163   2              }
+ 164   1              if(count >= 200)
+ 165   1              {
+ 166   2                      count = 0;
+ 167   2                      timer_30s++;
+ 168   2                      if(timer_30s >= 1500)
+ 169   2                      {
+ 170   3                              set_timeup_30s(1);
+ 171   3                              timer_30s = 0;
+ 172   3                      }
+ 173   2              }
+ 174   1      }
+ 175          
+ 176          //自动运行
+ 177          extern void measure_f(unsigned int* d)//测前进方向的距离
+ 178          {
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 4   
+
+ 179   1              if(get_orientation())
+ 180   1              {
+ 181   2                      measure_distanceB(d);
+ 182   2              }
+ 183   1              else
+ 184   1              {
+ 185   2                      measure_distanceF(d);
+ 186   2              }
+ 187   1      }
+ 188          extern void manage_auto()
+ 189          {
+ 190   1              uint distance = 0;
+ 191   1              measure_f(&distance);
+ 192   1              
+ 193   1              if(distance > DANGEROUS_DIATANCE)
+ 194   1              {
+ 195   2                      inform_safe();
+ 196   2                      if(get_steer_state() == STEER_L)
+ 197   2                      {
+ 198   3                              steer_turn_F();
+ 199   3                              turn_Left();
+ 200   3                      }
+ 201   2                      else if(get_steer_state() == STEER_R)
+ 202   2                      {
+ 203   3                              steer_turn_F();
+ 204   3                              turn_Right();
+ 205   3                      }
+ 206   2                      forward();
+ 207   2                      return;
+ 208   2              }
+ 209   1              else
+ 210   1              {
+ 211   2                      
+ 212   2                      inform_danger();
+ 213   2                      if(is_dangerous())//inform_danger()被调用三次后运行此处
+ 214   2                      {
+ 215   3                              motor_ctrl('s');
+ 216   3                              if(get_steer_state() == STEER_F)
+ 217   3                              {
+ 218   4                                      steer_turn_Left();
+ 219   4                              }
+ 220   3                              else if(get_steer_state() == STEER_L)
+ 221   3                              {
+ 222   4                                      steer_turn_F();
+ 223   4                                      steer_turn_Right();
+ 224   4                              }
+ 225   3                              else if(get_steer_state() == STEER_R)
+ 226   3                              {
+ 227   4                                      steer_turn_F();
+ 228   4                                      backward();
+ 229   4                              }
+ 230   3                              return;
+ 231   3                      }
+ 232   2                      else
+ 233   2                      {
+ 234   3                              return;
+ 235   3                      }
+ 236   2              }
+ 237   1      }
+ 238          extern void turn_Left()
+ 239          {
+ 240   1              unsigned char t_speed = get_speed();
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 5   
+
+ 241   1              set_speed(120);//因为自动运行转弯角度固定，此处以三档为准
+ 242   1              if(get_orientation())
+ 243   1              {
+ 244   2                      LCD1602_new_str("Turning Right!", sizeof("Turning Right!") - 1);
+ 245   2                      motor_ctrl('R');
+ 246   2              }
+ 247   1              else
+ 248   1              {
+ 249   2                      LCD1602_new_str("Turning Left!", sizeof("Turning Left!") - 1);
+ 250   2                      motor_ctrl('L');
+ 251   2              }
+ 252   1              delay_ms(DELAY_TIME);
+ 253   1              set_speed(t_speed);//恢复原速度
+ 254   1              if(get_orientation())
+ 255   1              {
+ 256   2                      LCD1602_new_str("Backward!", sizeof("Backward!") - 1);
+ 257   2                      motor_ctrl('D');
+ 258   2              }
+ 259   1              else
+ 260   1              {
+ 261   2                      LCD1602_new_str("Forward!", sizeof("Forward!") - 1);
+ 262   2                      motor_ctrl('U');
+ 263   2              }
+ 264   1      }
+ 265          extern void turn_Right()
+ 266          {
+ 267   1              unsigned char t_speed = get_speed();
+ 268   1              set_speed(120);//因为自动运行转弯角度固定，此处以三档为准
+ 269   1              if(get_orientation())
+ 270   1              {
+ 271   2                      LCD1602_new_str("Turning Left!", sizeof("Turning Left!") - 1);
+ 272   2                      motor_ctrl('L');
+ 273   2              }
+ 274   1              else
+ 275   1              {
+ 276   2                      LCD1602_new_str("Turning Right!", sizeof("Turning Right!") - 1);
+ 277   2                      motor_ctrl('R');
+ 278   2              }
+ 279   1              delay_ms(DELAY_TIME);
+ 280   1              set_speed(t_speed);//恢复原速度
+ 281   1              if(get_orientation())
+ 282   1              {
+ 283   2                      LCD1602_new_str("Backward!", sizeof("Backward!") - 1);
+ 284   2                      motor_ctrl('D');
+ 285   2              }
+ 286   1              else
+ 287   1              {
+ 288   2                      LCD1602_new_str("Forward!", sizeof("Forward!") - 1);
+ 289   2                      motor_ctrl('U');
+ 290   2              }
+ 291   1      }
+ 292          
+ 293          extern void steer_turn_Left()
+ 294          {
+ 295   1              LCD1602_new_str("Detecting...", sizeof("Detecting...") - 1);
+ 296   1              if(get_orientation())
+ 297   1              {
+ 298   2                      set_angleB(5);
+ 299   2              }
+ 300   1              else
+ 301   1              {
+ 302   2                      set_angleF(17);
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 6   
+
+ 303   2              }
+ 304   1              set_steer_state(STEER_L);
+ 305   1              delay_ms(123);
+ 306   1      }
+ 307          
+ 308          extern void steer_turn_Right()
+ 309          {
+ 310   1              LCD1602_new_str("Detecting...", sizeof("Detecting...") - 1);
+ 311   1              if(get_orientation())
+ 312   1              {
+ 313   2                      set_angleB(22);
+ 314   2              }
+ 315   1              else
+ 316   1              {
+ 317   2                      set_angleF(5);
+ 318   2              }
+ 319   1              set_steer_state(STEER_R);
+ 320   1              delay_ms(123);
+ 321   1      }
+ 322          
+ 323          extern void steer_turn_F()
+ 324          {
+ 325   1              if(get_orientation())
+ 326   1              {
+ 327   2                      set_angleB(11);
+ 328   2              }
+ 329   1              else
+ 330   1              {
+ 331   2                      set_angleF(11);
+ 332   2              }
+ 333   1              set_steer_state(STEER_F);
+ 334   1              delay_ms(123);
+ 335   1      }
+ 336          
+ 337          extern void backward()
+ 338          {
+ 339   1              if(get_orientation())
+ 340   1              {
+ 341   2                      LCD1602_new_str("Forward!", sizeof("Forward!") - 1);
+ 342   2                      motor_ctrl('U');
+ 343   2              }
+ 344   1              else
+ 345   1              {
+ 346   2                      LCD1602_new_str("Backward!", sizeof("Backward!") - 1);
+ 347   2                      motor_ctrl('D');
+ 348   2              }
+ 349   1              set_speed_direct();
+ 350   1      }
+ 351          
+ 352          extern void forward()
+ 353          {
+ 354   1              if(get_orientation() == 0)
+ 355   1              {
+ 356   2                      LCD1602_new_str("Forward!", sizeof("Forward!") - 1);
+ 357   2                      motor_ctrl('U');
+ 358   2              }
+ 359   1              else
+ 360   1              {
+ 361   2                      LCD1602_new_str("Backward!", sizeof("Backward!") - 1);
+ 362   2                      motor_ctrl('D');
+ 363   2              }
+ 364   1              set_speed_direct();
+C51 COMPILER V9.01   SERVOS_MOTORS                                                         02/23/2016 22:16:20 PAGE 7   
+
+ 365   1      }
+ 366          
+ 367          extern void set_auto(bit value)
+ 368          {
+ 369   1              auto_mode = value;
+ 370   1      }
+ 371          extern bit is_auto()
+ 372          {
+ 373   1              return auto_mode;
+ 374   1      }
+ 375          
+ 376          extern void set_orientation(bit value)
+ 377          {
+ 378   1              orientation = value;
+ 379   1      }
+ 380          
+ 381          extern bit get_orientation()
+ 382          {
+ 383   1              return orientation;
+ 384   1      }
+ 385          
+ 386          extern void inform_danger()
+ 387          {
+ 388   1              danger++;
+ 389   1      }
+ 390          
+ 391          extern void inform_safe()
+ 392          {
+ 393   1              danger = 0;
+ 394   1      }
+ 395          
+ 396          extern bit is_dangerous()
+ 397          {
+ 398   1              if(danger >= 3)
+ 399   1                      return 1;
+ 400   1              return 0;
+ 401   1      }
+ 402          
+ 403          extern void set_steer_state(unsigned char value)
+ 404          {
+ 405   1              steer_state = value;
+ 406   1      }
+ 407          
+ 408          extern unsigned char get_steer_state()
+ 409          {
+ 410   1              return steer_state;
+ 411   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    848    ----
+   CONSTANT SIZE    =     61    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,99 @@
+C51 COMPILER V9.01   LCD1602                                                               02/23/2016 22:16:19 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE LCD1602
+OBJECT MODULE PLACED IN .\Objects\LCD1602.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE LCD1602.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\LCD1
+                    -602.lst) OBJECT(.\Objects\LCD1602.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "LCD1602.h"
+   3          #include "COMMON_FUNC.h"
+   4          
+   5          sbit LCD1602_RS = P2^0;
+   6          sbit LCD1602_E = P2^1;
+   7          
+   8          extern void LCD1602_COMMAND(unsigned char command)
+   9          {
+  10   1              LCD1602_RS =0;
+  11   1              P0 = command;
+  12   1              delay_ms(5);
+  13   1              LCD1602_E = 1;
+  14   1              delay_ms(5);
+  15   1              LCD1602_E = 0;
+  16   1      }
+  17          
+  18          
+  19          extern void LCD1602_DATA(unsigned char d)
+  20          {
+  21   1              LCD1602_RS =1;
+  22   1              P0 = d;
+  23   1              delay_ms(5);
+  24   1              LCD1602_E = 1;
+  25   1              delay_ms(5);
+  26   1              LCD1602_E = 0;
+  27   1      }
+  28          
+  29           
+  30          extern void LCD_1602_INIT()
+  31          {
+  32   1              LCD1602_E = 0;
+  33   1      
+  34   1              LCD1602_COMMAND(0x38);//16*2显示，5*7点阵，8位数据接口
+  35   1              LCD1602_COMMAND(0x0C);//开始显示，无光标
+  36   1              LCD1602_COMMAND(0x06);//地址自动加一
+  37   1              LCD1602_COMMAND(0x01);//显示清零，地址指针清零
+  38   1      }
+  39          
+  40          //屏幕和地址指针清零
+  41          extern void LCD1602_CLEAR()
+  42          {
+  43   1              LCD1602_COMMAND(0x01);//显示清零，地址指针清零
+  44   1      }
+  45          
+  46          //换行
+  47          extern void LCD1602_NEWLINE()
+  48          {
+  49   1              LCD1602_COMMAND(0x80 + 0x40);
+  50   1      }
+  51          
+  52          //从当前屏幕最后一个字处开始显示所给字符串
+  53          extern void LCD1602_cat_str(unsigned char *str, unsigned char len)
+  54          {
+C51 COMPILER V9.01   LCD1602                                                               02/23/2016 22:16:19 PAGE 2   
+
+  55   1              uchar i;
+  56   1              
+  57   1              for(i = 0;i < len && i < 32;i++)
+  58   1              {
+  59   2                      LCD1602_DATA(str[i]);
+  60   2                      if(i == 15)//换行
+  61   2                      {
+  62   3                              LCD1602_NEWLINE();
+  63   3                      }
+  64   2              }
+  65   1      }
+  66          
+  67          //清屏并从头显示一个字符串，自动换行
+  68          extern void LCD1602_new_str(unsigned char *str, unsigned char len)
+  69          {
+  70   1              LCD1602_CLEAR();
+  71   1              LCD1602_COMMAND(0x80);
+  72   1              LCD1602_cat_str(str, len);
+  73   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    162    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

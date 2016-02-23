@@ -1,0 +1,82 @@
+C51 COMPILER V9.01   CODE                                                                  02/23/2016 22:16:18 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE CODE
+OBJECT MODULE PLACED IN .\Objects\code.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE code.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\code.ls
+                    -t) OBJECT(.\Objects\code.obj)
+
+line level    source
+
+   1          /**************************************
+   2                  作者：普鹏飞
+   3                  Email:792570367@qq.com
+   4                  创建时间：2016/02/04,11:45
+   5          **************************************/
+   6          
+   7          #include "FUNCTION_FOR_MAIN.h"
+   8          int main()
+   9          {
+  10   1              init();
+  11   1              delay_ms(100);
+  12   1              LCD1602_new_str("Initializing...", sizeof("Initializing...")  - 1);
+  13   1              delay_ms(100);
+  14   1              LCD1602_new_str("Cadillac Ready!", sizeof("Cadillac Ready!")  - 1);
+  15   1              
+  16   1              while(1)
+  17   1              {
+  18   2                      if(get_data_come() == 1)
+  19   2                      {       
+  20   3                              set_data_come(0);
+  21   3                              TranslateMsg(get_data());
+  22   3                      }
+  23   2                      else if(is_auto())
+  24   2                      {
+  25   3                              manage_auto();
+  26   3                      }
+  27   2                      else if(is_timeup_30s() && get_auto_renew() && get_direction() == 0x00)//开启自动更新且没收到指令时，每3
+             -0s回传一次数据
+  28   2                      {
+  29   3                              uchar buf[5], b_h[3], b_t[3];
+  30   3                              uchar count = 0;
+  31   3                              set_timeup_30s(0);
+  32   3                              //测量并传送距离
+  33   3                              measure_distanceF2str(buf);
+  34   3                              send_string(buf, 5);
+  35   3                              measure_distanceB2str(buf);
+  36   3                              send_string(buf, 5);
+  37   3                              //测量并传送温湿度
+  38   3                              while(READ_DHT11_toStr(b_t, b_h) == ERROR && (++count) <= 3);
+  39   3                              if(count <= 3)
+  40   3                              {
+  41   4                                      send_string(b_t, 3);
+  42   4                                      send_string(b_h, 3);
+  43   4                              }
+  44   3                              else
+  45   3                              {
+  46   4                                      send_string("TRetry", sizeof("TRetry") - 1);
+  47   4                                      send_string("HRetry", sizeof("HRetry") - 1);
+  48   4                              }
+  49   3                      }
+  50   2                      else
+  51   2                      {
+  52   3                              accelerator();//执行加速器函数，模拟缓慢启动（减速）
+  53   3                      }
+C51 COMPILER V9.01   CODE                                                                  02/23/2016 22:16:18 PAGE 2   
+
+  54   2              }
+  55   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    228    ----
+   CONSTANT SIZE    =     46    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      12
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

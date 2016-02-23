@@ -1,0 +1,49 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.12.0.0
+Copyright (C) 2014 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: mike m, m, LIC=CZVNN-Y7PJU-6D1KF-67VWL-VUYX8-ZQ4FJ
+ 
+Tool Versions:
+Toolchain:       PK51 Prof. Developers Kit  Version: 9.01
+Toolchain Path:  D:\keil\C51\BIN
+C Compiler:      C51.exe V9.01
+Assembler:       A51.exe V8.02
+Linker/Locator:  BL51.exe V6.22
+Library Manager: LIB51.exe V4.24
+Hex Converter:   OH51.exe V2.6
+CPU DLL:         S8051.DLL V3.72
+Dialog DLL:      DP51.DLL V2.59 
+<h2>Project:</h2>
+F:\µ¥Æ¬»ú\SerialCom\SCom.uvproj
+Project File Date:  02/20/2016
+
+<h2>Output:</h2>
+Rebuild target 'Target 1'
+assembling STARTUP.A51...
+compiling code.c...
+compiling DHT11_FUNCTIONS.c...
+compiling LCD1602.c...
+compiling COMMAN_FUNC.c...
+compiling ULTRASOUND.c...
+compiling SERIALCOM.c...
+compiling SERVOS_MOTORS.c...
+compiling function_for_main.c...
+linking...
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?SET_TIMEUP_30S?COMMAN_FUNC
+    CALLER1: ?C_C51STARTUP
+    CALLER2: ?PR?TIMER0_INTRRUPT?SERVOS_MOTORS
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?SET_RESPONSE_FLAG?COMMAN_FUNC
+    CALLER1: ?C_C51STARTUP
+    CALLER2: ?PR?SERIAL_COM?FUNCTION_FOR_MAIN
+Program Size: data=86.2 xdata=0 code=4327
+creating hex file from ".\Objects\SCom"...
+".\Objects\SCom" - 0 Error(s), 2 Warning(s).
+</pre>
+</body>
+</html>

@@ -1,0 +1,82 @@
+C51 COMPILER V9.01   SERIALCOM                                                             02/23/2016 22:16:19 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SERIALCOM
+OBJECT MODULE PLACED IN .\Objects\SERIALCOM.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE SERIALCOM.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\SE
+                    -RIALCOM.lst) OBJECT(.\Objects\SERIALCOM.obj)
+
+line level    source
+
+   1          #include "SERIALCOM.h"
+   2          #include <reg52.h>
+   3          #include "COMMON_FUNC.h"
+   4          
+   5          //串口的配置,方式1，波特率9600
+   6          extern void init_serial_com()
+   7          {
+   8   1              TMOD |= 0x20;
+   9   1              TH1 = 0xFD;
+  10   1              TL1 = 0xFD;
+  11   1              TR1 = 1;
+  12   1              SCON = 0x50;
+  13   1              EA = 1;
+  14   1              ES = 1;
+  15   1              set_response_flag(0);
+  16   1              set_connected(0);
+  17   1      }
+  18          //向串口发送长度为len的字符串，没有连接将直接返回
+  19          extern void send_string(unsigned char* str,unsigned char len)
+  20          {
+  21   1              uchar i = 0;
+  22   1              if(is_connected() == 0)
+  23   1                      return;
+  24   1              //关闭串口中断,发送中断清零
+  25   1              set_response_flag(0);
+  26   1              ES = 0;
+  27   1              TI = 0;
+  28   1              //发送开始符
+  29   1              SBUF = '$';
+  30   1              while(!TI);
+  31   1              TI = 0;
+  32   1              //等待回应再继续发送
+  33   1              ES = 1;
+  34   1              while(get_response_flag() == 0);
+  35   1              //开始发送
+  36   1              while(i < len)
+  37   1              {
+  38   2                      set_response_flag(0);
+  39   2                      ES = 0;
+  40   2                      SBUF = str[i++];
+  41   2                      while(!TI);
+  42   2                      TI = 0;
+  43   2                      //等待回应再继续发送
+  44   2                      ES = 1;
+  45   2                      while(get_response_flag() == 0);
+  46   2              }
+  47   1              //发送终止符
+  48   1              set_response_flag(0);
+  49   1              ES = 0;
+  50   1              SBUF = '#';
+  51   1              while(!TI);
+  52   1              TI = 0;
+  53   1              //等待回应
+  54   1              ES = 1;
+C51 COMPILER V9.01   SERIALCOM                                                             02/23/2016 22:16:19 PAGE 2   
+
+  55   1              while(get_response_flag() == 0);
+  56   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    139    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
